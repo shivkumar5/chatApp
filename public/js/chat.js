@@ -1,7 +1,25 @@
 var socket = io();
 socket.on('connect',function(){
-    console.log('Connected to server');
+    var params = jQuery.deparam(window.location.search);
+
+    socket.emit('join',params,function(error){
+        if(error ){
+            alert(error);
+            window.location.href = '/';
+        }else{
+
+            console.log('Ok')
+        }
+    })
 });
+
+socket.on('updateUserList',function(users){
+    var ol = jQuery('<ol></ol>');
+    users.forEach(function(user){
+        ol.append(jQuery('<li></li>').text(user));
+    });
+    jQuery('#users').html(ol);
+})
 
 function scrollBottom(){
     var messages = jQuery('#messages');
@@ -40,10 +58,9 @@ var msgTextBox = jQuery('[name=message]')
 jQuery('#message-form').on('submit',function(e){
     e.preventDefault();
     socket.emit('createMessage',{
-        from:'User',
         text:msgTextBox.val()
     },function(){
-        msgTextBox  .val('')
+        msgTextBox.val('')
     })
 });
 
